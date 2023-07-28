@@ -12,31 +12,37 @@
 #include <glm/glm.hpp>
 #include <string_view>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 namespace kat::window {
     struct windowing_engine;
 
     namespace x11 {
+        video_mode make_video_mode_x11(const XRRModeInfo& mode_info, const XRRCrtcInfo* crtc_info, Screen* screen);
+
+        display_depth make_display_depth_x11(int depth);
+
         struct engine_state_x11 {
             Display* display;
             int screen_id;
             Screen* screen;
             Window root;
+            std::unordered_map<RRMode, XRRModeInfo> mode_infos;
+            XRRScreenResources* scr_res;
 
             engine_state_x11();
             ~engine_state_x11();
 
-            glm::vec2 dpi();
-            glm::vec2 scale();
+            [[nodiscard]] glm::vec2 dpi();
+            [[nodiscard]] glm::vec2 scale();
         };
 
-        int calcRefreshRate(const XRRModeInfo& modeInfo);
+        int calc_refresh_rate(const XRRModeInfo& modeInfo);
 
         class monitor_x11 {
         public:
-            monitor_x11(const std::shared_ptr<windowing_engine>& engine, const XRRMonitorInfo &monitor_info_);
-
-            [[maybe_unused]] [[nodiscard]] const XRRMonitorInfo &monitor_info() const;
+            monitor_x11(const std::shared_ptr<windowing_engine>& engine, const XRRMonitorInfo &monitor_info, const XRROutputInfo& output_info, RROutput output);
 
             [[nodiscard]] glm::vec2 dpi() const;
             [[nodiscard]] glm::vec2 scale() const;
@@ -49,12 +55,24 @@ namespace kat::window {
 
             [[nodiscard]] bool is_primary() const;
 
-            const std::vector<RROutput>& outputs() const noexcept;
+            [[nodiscard]] kat::window::video_mode video_mode() const;
+            [[nodiscard]] std::vector<kat::window::video_mode> video_modes() const;
+
+
+            [[nodiscard]] RROutput get_output() const;
 
         private:
-            XRRMonitorInfo m_monitor_info;
+            RROutput m_output;
+            glm::uvec2 m_physical_size, m_size;
+            glm::ivec2 m_position;
+            std::string m_name;
+            std::vector<kat::window::video_mode> m_video_modes;
+            RRCrtc m_crtc;
+            bool m_is_primary;
+            Atom m_monitor_idname;
+
             std::shared_ptr<windowing_engine> m_windowing_engine;
-            std::vector<RROutput> m_outputs;
+            window::video_mode m_video_mode;
         };
 
         class window_x11 {

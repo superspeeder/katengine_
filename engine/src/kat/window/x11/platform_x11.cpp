@@ -2,8 +2,12 @@
 #include "kat/window/window.hpp"
 #include <spdlog/spdlog.h>
 #include <X11/Xresource.h>
+#include <X11/cursorfont.h>
 #include <set>
 #include <unordered_map>
+#include <Xm/Xm.h>
+#include <Xm/XmAll.h>
+#include <Xm/MwmUtil.h>
 
 namespace kat::window::x11 {
     engine_state_x11::engine_state_x11() {
@@ -195,5 +199,97 @@ namespace kat::window {
         XRRFreeMonitors(monitorInfos);
 
         return monitors;
+    }
+
+    x11::window_x11::window_x11(const std::shared_ptr<windowing_engine>& engine, std::string_view title_, glm::uvec2 size_, glm::uvec2 position_) : m_windowing_engine(engine) {
+        Cursor cursor = XCreateFontCursor(engine->platform->display, XC_left_side);
+
+        XSetWindowAttributes swa{};
+        swa.colormap = engine->platform->screen->cmap;
+        swa.event_mask = StructureNotifyMask | KeyPressMask | ExposureMask | ControlMask;
+        swa.cursor = cursor;
+
+        m_window = XCreateWindow(m_windowing_engine->platform->display, m_windowing_engine->platform->root,
+                      position_.x, position_.y, size_.x, size_.y, 0,
+                      CopyFromParent, InputOutput, CopyFromParent,
+                      CWEventMask | CWColormap | CWCursor,
+                      &swa);
+
+
+
+        XStoreName(engine->platform->display, m_window, title_.data());
+        XMapWindow(engine->platform->display, m_window);
+
+        int nprop;
+        Atom* props = XListProperties(m_windowing_engine->platform->display, m_window, &nprop);
+
+        printf("Props: \n");
+        for (int i =0 ; i < nprop ; i++) {
+            char* name = XGetAtomName(m_windowing_engine->platform->display, props[i]);
+
+            printf("- %s\n", name);
+
+            XFree(name);
+        }
+
+//        //code to remove decoration
+//        PropMwmHints hints;
+//        Atom property;
+//        hints.flags = MWM_HINTS_DECORATIONS;
+//        hints.decorations = 0;
+//        property = XInternAtom(m_windowing_engine->platform->display, _XA_MWM_HINTS, true);
+//        XChangeProperty(m_windowing_engine->platform->display,m_window,property,property,32,PropModeReplace,(unsigned char *)&hints,5);
+
+        XMapWindow(m_windowing_engine->platform->display, m_window);
+
+
+    }
+
+    x11::window_x11::~window_x11() {
+
+    }
+
+    std::string_view x11::window_x11::title() const {
+        return std::string_view();
+    }
+
+    void x11::window_x11::title(std::string_view new_title) {
+
+    }
+
+    glm::vec2 x11::window_x11::dpi() const {
+        return glm::vec2();
+    }
+
+    glm::vec2 x11::window_x11::scale() const {
+        return glm::vec2();
+    }
+
+    glm::uvec2 x11::window_x11::size() const {
+        return glm::uvec2();
+    }
+
+    glm::ivec2 x11::window_x11::position() const {
+        return glm::ivec2();
+    }
+
+    void x11::window_x11::size(glm::uvec2 new_size) {
+
+    }
+
+    void x11::window_x11::position(glm::uvec2 new_position) {
+
+    }
+
+    glm::uvec2 x11::window_x11::client_size() const {
+        return glm::uvec2();
+    }
+
+    void x11::window_x11::client_size(glm::uvec2 new_client_size) const {
+
+    }
+
+    Window x11::window_x11::platform_handle() const {
+        return 0;
     }
 }

@@ -50,5 +50,23 @@ int main() {
     std::cout << "System DPI: " << dpi.x << " x " << dpi.y << '\n';
     std::cout << "Scale: " << scale.x << " x " << scale.y << '\n';
 
+    kat::window::x11::window_x11 *win = new kat::window::x11::window_x11(windowing_engine, "hello!", {800, 800}, {100, 100});
+
+    XEvent event;
+
+    auto escape_kc = XKeysymToKeycode(display, XK_Escape);
+
+    while (true) {
+        XNextEvent(display, &event);
+        if (event.type == KeyPress) {
+            auto keycode = event.xkey.keycode;
+            if (keycode == escape_kc) {
+                std::cout << "Closing!" << std::endl;
+                break;
+            }
+        }
+    }
+
+
     return EXIT_SUCCESS;
 }

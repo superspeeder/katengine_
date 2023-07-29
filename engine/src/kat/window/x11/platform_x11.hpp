@@ -78,13 +78,31 @@ namespace kat::window {
         class window_x11 {
         public:
 
+            window_x11(const std::shared_ptr<windowing_engine>& engine, std::string_view title_, glm::uvec2 size_, glm::uvec2 position_);
+            ~window_x11();
+
+            std::string_view title() const;
+            void title(std::string_view new_title);
+
+            glm::vec2 dpi() const;
+            glm::vec2 scale() const;
+
+            glm::uvec2 size() const;
+            glm::ivec2 position() const;
+
+            void size(glm::uvec2 new_size);
+            void position(glm::uvec2 new_position);
+
+            glm::uvec2 client_size() const;
+            void client_size(glm::uvec2 new_client_size) const;
+
+            Window platform_handle() const;
+
+
+
         private:
-
-            glm::vec2 dpi();
-            glm::vec2 scale();
-
-            glm::uvec2 size();
-            glm::ivec2 position();
+            Window m_window;
+            std::shared_ptr<windowing_engine> m_windowing_engine;
         };
     }
 

@@ -9,8 +9,8 @@ namespace kat::window {
         delete platform;
     }
 
-    std::vector<std::shared_ptr<monitor>> windowing_engine::monitors() {
-        return get_all_monitors(shared_from_this());
+    std::vector<std::shared_ptr<monitor>> windowing_engine::monitors() const {
+        return platform->monitors();
     }
 }
 

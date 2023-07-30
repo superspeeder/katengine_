@@ -9,9 +9,9 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
 #include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 #include <string_view>
-#include <memory>
 #include <string>
 #include <unordered_map>
 

@@ -14,11 +14,15 @@ namespace kat::window {
     struct windowing_engine : public std::enable_shared_from_this<windowing_engine> {
         kat::window::platform_state* platform;
 
-        [[nodiscard]] std::vector<std::shared_ptr<monitor>> monitors();
+        [[nodiscard]] std::vector<std::shared_ptr<monitor>> monitors() const;
 
         ~windowing_engine();
 
-        [[nodiscard]] static inline std::shared_ptr<windowing_engine> create() { return std::shared_ptr<windowing_engine>(new windowing_engine()); };
+        [[nodiscard]] static inline std::shared_ptr<windowing_engine> create() {
+            auto sp = std::shared_ptr<windowing_engine>(new windowing_engine());
+            sp->platform->setup(sp);
+            return sp;
+        };
 
     private:
         explicit windowing_engine();
@@ -49,11 +53,19 @@ namespace kat::window {
             { value.size() } -> std::same_as<glm::uvec2>;
             { value.name() } -> std::same_as<std::string_view>;
             { value.is_primary() } -> std::same_as<bool>;
-            { value.video_mode() } -> std::same_as<window::video_mode>;
-            { value.video_modes() } -> std::same_as<std::vector<window::video_mode>>;
+            { value.video_mode() } -> std::same_as<::kat::window::video_mode>;
+            { value.video_modes() } -> std::same_as<std::vector<::kat::window::video_mode>>;
+        };
+
+        template<typename T>
+        concept is_platform_state = requires(T& value, const std::shared_ptr<windowing_engine>& engine) {
+            { value.setup(engine) } -> std::same_as<void>;
+        } && requires(const T& value) {
+            { value.monitors() } -> std::same_as<std::vector<std::shared_ptr<monitor>>>;
         };
 
         static_assert(is_monitor<monitor>, "monitor interface not implemented correctly.");
+        static_assert(is_platform_state<platform_state>, "platform_state interface not implemented correctly.");
     }
 #endif
 }

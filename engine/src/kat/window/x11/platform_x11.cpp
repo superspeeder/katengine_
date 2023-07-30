@@ -1,3 +1,5 @@
+#include "kat/cfg.hpp"
+#ifdef KATWINDOW_TARGET_X11
 #include "platform_x11.hpp"
 #include "kat/window/window.hpp"
 #include <spdlog/spdlog.h>
@@ -293,3 +295,4 @@ namespace kat::window {
         return 0;
     }
 }
+#endif

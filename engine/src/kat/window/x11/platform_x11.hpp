@@ -23,6 +23,8 @@ namespace kat::window {
 
         display_depth make_display_depth_x11(int depth);
 
+        class monitor_x11;
+
         struct engine_state_x11 {
             Display* display;
             int screen_id;
@@ -31,11 +33,16 @@ namespace kat::window {
             std::unordered_map<RRMode, XRRModeInfo> mode_infos;
             XRRScreenResources* scr_res;
 
+            std::vector<std::shared_ptr<monitor_x11>> m_monitors;
+
             engine_state_x11();
             ~engine_state_x11();
 
             [[nodiscard]] glm::vec2 dpi();
             [[nodiscard]] glm::vec2 scale();
+
+            std::vector<std::shared_ptr<monitor_x11>> monitors() const;
+            void setup(const std::shared_ptr<windowing_engine>& engine);
         };
 
         int calc_refresh_rate(const XRRModeInfo& modeInfo);

@@ -64,6 +64,14 @@ namespace kat::window::x11 {
         return kat::window::conv_dpi_to_scale(dpi());
     }
 
+    void engine_state_x11::setup(const std::shared_ptr<windowing_engine> &engine) {
+        m_monitors = get_all_monitors(engine);
+    }
+
+    std::vector<std::shared_ptr<monitor_x11>> engine_state_x11::monitors() const {
+        return m_monitors;
+    }
+
     monitor_x11::monitor_x11(const std::shared_ptr<windowing_engine>& engine, const XRRMonitorInfo &monitor_info, const XRROutputInfo& output_info, RROutput output) : m_output(output), m_windowing_engine(engine) {
         m_size = { monitor_info.width, monitor_info.height };
         m_position = { monitor_info.x, monitor_info.y };
@@ -85,12 +93,6 @@ namespace kat::window::x11 {
         XRRModeInfo modeinfo = engine->platform->mode_infos[mode];
         kat::window::video_mode vm = make_video_mode_x11(modeinfo, crtc_info, engine->platform->screen);
         m_video_mode = vm;
-
-        printf("IMonitor %s:\n", m_name.c_str());
-        printf("  CRTC Size: %d x %d\n", crtc_info->width, crtc_info->height);
-        printf("  CRTC Pos: %d, %d\n", crtc_info->x, crtc_info->y);
-        printf("  CRTC Video Mode: %d x %d @ %d Hz. Depth: (%d, %d, %d)\n", vm.resolution.x, vm.resolution.y, vm.refresh_rate, vm.depth.red, vm.depth.green, vm.depth.blue);
-
     }
 
     glm::vec2 monitor_x11::dpi() const {
@@ -221,18 +223,6 @@ namespace kat::window {
 
         XStoreName(engine->platform->display, m_window, title_.data());
         XMapWindow(engine->platform->display, m_window);
-
-        int nprop;
-        Atom* props = XListProperties(m_windowing_engine->platform->display, m_window, &nprop);
-
-        printf("Props: \n");
-        for (int i =0 ; i < nprop ; i++) {
-            char* name = XGetAtomName(m_windowing_engine->platform->display, props[i]);
-
-            printf("- %s\n", name);
-
-            XFree(name);
-        }
 
 //        //code to remove decoration
 //        PropMwmHints hints;

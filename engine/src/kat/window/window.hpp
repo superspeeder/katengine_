@@ -49,12 +49,31 @@ namespace kat::window {
         concept is_monitor = requires(const T &value) {
             { value.dpi() } -> std::same_as<glm::vec2>;
             { value.scale() } -> std::same_as<glm::vec2>;
+            { value.position() } -> std::same_as<glm::ivec2>;
             { value.physical_size() } -> std::same_as<glm::uvec2>;
             { value.size() } -> std::same_as<glm::uvec2>;
             { value.name() } -> std::same_as<std::string_view>;
             { value.is_primary() } -> std::same_as<bool>;
             { value.video_mode() } -> std::same_as<::kat::window::video_mode>;
             { value.video_modes() } -> std::same_as<std::vector<::kat::window::video_mode>>;
+        };
+
+        template<typename T>
+        concept is_window = requires(const T &value) {
+            { value.dpi() } -> std::same_as<glm::vec2>;
+            { value.scale() } -> std::same_as<glm::vec2>;
+            { value.position() } -> std::same_as<glm::ivec2>;
+            { value.size() } -> std::same_as<glm::uvec2>;
+            { value.title() } -> std::same_as<std::string_view>;
+            { value.decorated() } -> std::same_as<bool>;
+        } && requires(T& value, glm::uvec2 new_uvec2, glm::ivec2 new_ivec2, std::string_view new_string, bool new_bool) {
+            { value.size(new_uvec2) } -> std::same_as<void>;
+            { value.position(new_ivec2) } -> std::same_as<void>;
+            { value.title(new_string) } -> std::same_as<void>;
+            { value.decorated(new_bool) } -> std::same_as<void>;
+            { value.restore() } -> std::same_as<void>;
+            { value.maximize() } -> std::same_as<void>;
+            { value.minimize() } -> std::same_as<void>;
         };
 
         template<typename T>
@@ -65,6 +84,7 @@ namespace kat::window {
         };
 
         static_assert(is_monitor<monitor>, "monitor interface not implemented correctly.");
+        static_assert(is_window<window>, "window interface not implemented correctly.");
         static_assert(is_platform_state<platform_state>, "platform_state interface not implemented correctly.");
     }
 #endif

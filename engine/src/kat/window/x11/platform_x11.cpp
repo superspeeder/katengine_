@@ -127,11 +127,11 @@ namespace kat::window::x11 {
         return m_output;
     }
 
-    window::video_mode monitor_x11::video_mode() const {
+    ::kat::window::video_mode monitor_x11::video_mode() const {
         return m_video_mode;
     }
 
-    std::vector<window::video_mode> monitor_x11::video_modes() const {
+    std::vector<::kat::window::video_mode> monitor_x11::video_modes() const {
         return m_video_modes;
     }
 
@@ -143,8 +143,8 @@ namespace kat::window::x11 {
         }
     }
 
-    window::video_mode make_video_mode_x11(const XRRModeInfo &mode_info, const XRRCrtcInfo* crtc_info, Screen* screen) {
-        window::video_mode mode{};
+    ::kat::window::video_mode make_video_mode_x11(const XRRModeInfo &mode_info, const XRRCrtcInfo* crtc_info, Screen* screen) {
+        ::kat::window::video_mode mode{};
 
         mode.refresh_rate = calc_refresh_rate(mode_info);
         mode.resolution = { mode_info.width, mode_info.height };
@@ -258,31 +258,82 @@ namespace kat::window {
     }
 
     glm::uvec2 x11::window_x11::size() const {
-        return glm::uvec2();
+        XWindowAttributes wa;
+        XGetWindowAttributes(m_windowing_engine->platform->display, m_window, &wa);
+
+        return { wa.width, wa.height };
     }
 
     glm::ivec2 x11::window_x11::position() const {
-        return glm::ivec2();
+        Window root;
+        int x, y;
+        unsigned int w, h, bw, d;
+        XTranslateCoordinates(m_windowing_engine->platform->display, m_window, m_windowing_engine->platform->root, 0, 0, &x, &y, &root);
+
+        return { x, y };
     }
 
     void x11::window_x11::size(glm::uvec2 new_size) {
-
+        XMoveWindow(m_windowing_engine->platform->display, m_window, new_size.x, new_size.y);
+        XFlush(m_windowing_engine->platform->display);
     }
 
-    void x11::window_x11::position(glm::uvec2 new_position) {
-
-    }
-
-    glm::uvec2 x11::window_x11::client_size() const {
-        return glm::uvec2();
-    }
-
-    void x11::window_x11::client_size(glm::uvec2 new_client_size) const {
-
+    void x11::window_x11::position(glm::ivec2 new_position) {
+        XWindowChanges changes{};
+        changes.x = new_position.x;
+        changes.y = new_position.y;
+        XConfigureWindow(m_windowing_engine->platform->display, m_window, CWX | CWY, &changes);
     }
 
     Window x11::window_x11::platform_handle() const {
-        return 0;
+        return m_window;
+    }
+
+    bool x11::window_x11::decorated() const {
+        return m_decorated;
+    }
+
+    void x11::window_x11::decorated(bool new_mode) {
+        if (new_mode ^ m_decorated) {
+            // Change decoration
+
+            m_decorated = new_mode;
+            if (m_decorated) {
+                PropMwmHints hints;
+                Atom property;
+                hints.flags = MWM_HINTS_DECORATIONS;
+                hints.decorations = MWM_DECOR_ALL;
+                property = XInternAtom(m_windowing_engine->platform->display, _XA_MWM_HINTS, true);
+                XChangeProperty(m_windowing_engine->platform->display, m_window, property,
+                                property, 32, PropModeReplace, (unsigned char *)&hints,
+                                PROP_MWM_HINTS_ELEMENTS);
+                SPDLOG_INFO("DECORATE");
+            } else {
+                PropMwmHints hints;
+                Atom property;
+                hints.flags = MWM_HINTS_DECORATIONS;
+                hints.decorations = 0;
+                property = XInternAtom(m_windowing_engine->platform->display, _XA_MWM_HINTS, true);
+                XChangeProperty(m_windowing_engine->platform->display, m_window, property,
+                                property, 32, PropModeReplace, (unsigned char *)&hints,
+                                PROP_MWM_HINTS_ELEMENTS);
+                SPDLOG_INFO("UNDECORATE");
+            }
+        }
+
+
+    }
+
+    void x11::window_x11::restore() {
+
+    }
+
+    void x11::window_x11::maximize() {
+
+    }
+
+    void x11::window_x11::minimize() {
+
     }
 }
 #endif

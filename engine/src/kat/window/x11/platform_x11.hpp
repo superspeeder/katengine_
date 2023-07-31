@@ -88,7 +88,7 @@ namespace kat::window {
             window_x11(const std::shared_ptr<windowing_engine>& engine, std::string_view title_, glm::uvec2 size_, glm::uvec2 position_);
             ~window_x11();
 
-            [[nodiscard]] std::string_view title() const;
+            [[nodiscard]] std::string title() const;
             void title(std::string_view new_title);
 
             [[nodiscard]] glm::vec2 dpi() const;

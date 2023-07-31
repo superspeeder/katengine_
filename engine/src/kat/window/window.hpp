@@ -24,6 +24,10 @@ namespace kat::window {
             return sp;
         };
 
+        void process_events() const;
+
+        bool is_app_exit() const;
+
     private:
         explicit windowing_engine();
 
@@ -64,7 +68,7 @@ namespace kat::window {
             { value.scale() } -> std::same_as<glm::vec2>;
             { value.position() } -> std::same_as<glm::ivec2>;
             { value.size() } -> std::same_as<glm::uvec2>;
-            { value.title() } -> std::same_as<std::string_view>;
+            { value.title() } -> std::same_as<std::string>;
             { value.decorated() } -> std::same_as<bool>;
         } && requires(T& value, glm::uvec2 new_uvec2, glm::ivec2 new_ivec2, std::string_view new_string, bool new_bool) {
             { value.size(new_uvec2) } -> std::same_as<void>;
@@ -74,13 +78,17 @@ namespace kat::window {
             { value.restore() } -> std::same_as<void>;
             { value.maximize() } -> std::same_as<void>;
             { value.minimize() } -> std::same_as<void>;
+            { value.show() } -> std::same_as<void>;
+            { value.hide() } -> std::same_as<void>;
         };
 
         template<typename T>
         concept is_platform_state = requires(T& value, const std::shared_ptr<windowing_engine>& engine) {
             { value.setup(engine) } -> std::same_as<void>;
+            { value.process_events() } -> std::same_as<void>;
         } && requires(const T& value) {
             { value.monitors() } -> std::same_as<std::vector<std::shared_ptr<monitor>>>;
+            { value.is_app_exit() } -> std::same_as<bool>;
         };
 
         static_assert(is_monitor<monitor>, "monitor interface not implemented correctly.");

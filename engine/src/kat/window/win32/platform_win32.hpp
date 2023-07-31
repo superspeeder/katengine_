@@ -26,11 +26,17 @@ namespace kat::window {
 
         struct engine_state_win32 {
             std::vector<std::shared_ptr<monitor_win32>> m_monitors;
+            HINSTANCE m_instance;
 
             engine_state_win32();
 
             [[nodiscard]] std::vector<std::shared_ptr<monitor_win32>> monitors() const;
             void setup(const std::shared_ptr<windowing_engine>& engine);
+
+            void process_events();
+            bool is_app_exit() const;
+
+            bool m_app_exit = false;
         };
 
         class monitor_win32 {
@@ -71,11 +77,40 @@ namespace kat::window {
         class window_win32 {
         public:
 
-            window_win32(/* TODO */);
+            window_win32(const std::shared_ptr<kat::window::windowing_engine>& engine, std::string_view title, const glm::uvec2 &size, const glm::ivec2 &position);
+            ~window_win32();
+
+            [[nodiscard]] std::string title() const;
+            void title(std::string_view new_title);
+
+            [[nodiscard]] glm::vec2 dpi() const;
+            [[nodiscard]] glm::vec2 scale() const;
+
+            [[nodiscard]] glm::uvec2 size() const;
+            [[nodiscard]] glm::ivec2 position() const;
+
+            void size(glm::uvec2 new_size);
+            void position(glm::ivec2 new_position);
+
+            [[nodiscard]] bool decorated() const;
+            void decorated(bool new_mode);
+
+            void restore();
+            void maximize();
+            void minimize();
+
+            void show();
+            void hide();
+
+            [[nodiscard]] HWND platform_handle() const;
+
+            LRESULT window_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
         private:
-
+            std::shared_ptr<kat::window::windowing_engine> m_windowing_engine;
+            HMENU m_menu = nullptr;
             HWND m_hwnd;
+            bool m_decorated = true;
         };
     }
 

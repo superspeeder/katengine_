@@ -241,8 +241,8 @@ namespace kat::window {
 
     }
 
-    std::string_view x11::window_x11::title() const {
-        return std::string_view();
+    std::string x11::window_x11::title() const {
+        return std::string();
     }
 
     void x11::window_x11::title(std::string_view new_title) {

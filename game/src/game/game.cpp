@@ -40,38 +40,43 @@ int main() {
 
     auto window = std::make_shared<kat::window::window>(windowing_engine, "hello!", glm::uvec2{800, 800}, glm::ivec2(100, 100));
 
-    XEvent event;
-
-    auto escape_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_Escape);
-    auto space_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_space);
-    auto s_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_s);
-    auto w_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_w);
-    auto a_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_a);
-    auto d_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_d);
-
-
-    while (true) {
-        XNextEvent(windowing_engine->platform->display, &event);
-        if (event.type == KeyPress) {
-            auto keycode = event.xkey.keycode;
-            if (keycode == escape_kc) {
-                std::cout << "Closing!" << std::endl;
-                break;
-            } else if (keycode == space_kc) {
-                auto size = window->size();
-                auto pos = window->position();
-                SPDLOG_INFO("{} x {} @ {}, {}", size.x, size.y, pos.x, pos.y);
-            } else if (keycode == s_kc) {
-                window->size({800, 600});
-            } else if (keycode == w_kc) {
-                window->size({600, 800});
-            } else if (keycode == a_kc) {
-                window->position(window->position() + glm::ivec2(-100, 0));
-            } else if (keycode == d_kc) {
-                window->position(window->position() + glm::ivec2(100, 0));
-            }
-        }
+    while (!windowing_engine->is_app_exit()) {
+        windowing_engine->process_events();
     }
+
+
+//    XEvent event;
+//
+//    auto escape_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_Escape);
+//    auto space_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_space);
+//    auto s_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_s);
+//    auto w_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_w);
+//    auto a_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_a);
+//    auto d_kc = XKeysymToKeycode(windowing_engine->platform->display, XK_d);
+//
+//
+//    while (true) {
+//        XNextEvent(windowing_engine->platform->display, &event);
+//        if (event.type == KeyPress) {
+//            auto keycode = event.xkey.keycode;
+//            if (keycode == escape_kc) {
+//                std::cout << "Closing!" << std::endl;
+//                break;
+//            } else if (keycode == space_kc) {
+//                auto size = window->size();
+//                auto pos = window->position();
+//                SPDLOG_INFO("{} x {} @ {}, {}", size.x, size.y, pos.x, pos.y);
+//            } else if (keycode == s_kc) {
+//                window->size({800, 600});
+//            } else if (keycode == w_kc) {
+//                window->size({600, 800});
+//            } else if (keycode == a_kc) {
+//                window->position(window->position() + glm::ivec2(-100, 0));
+//            } else if (keycode == d_kc) {
+//                window->position(window->position() + glm::ivec2(100, 0));
+//            }
+//        }
+//    }
 
     return EXIT_SUCCESS;
 }
